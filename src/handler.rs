@@ -1,6 +1,7 @@
 use axum::{Json, extract::Path, http::StatusCode};
 use crate::models::{User, CreateUser, ApiError, ErrorDetail};
 
+// shared data
 fn get_all_users() -> Vec<User> {
     vec![
         User { id: 1, name: "Jimi".to_string() },
