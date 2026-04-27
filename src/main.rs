@@ -1,44 +1,21 @@
-use axum::{Json, extract::Path, http::StatusCode};
-use crate::models::{User, CreateUser, ApiError, ErrorDetail};
+mod models;
+mod handler;
 
-fn get_all_users() -> Vec<User> {
-    vec![
-        User { id: 1, name: "Jimi".to_string() },
-        User { id: 2, name: "Alex".to_string() },
-    ]
+use axum::{Router, routing::get};
+
+#[tokio::main]
+async fn main() {
+    let app = Router::new()
+    .route("/", get(root))
+    .route("/users", get(handler::get_users).post(handler::create_user))
+    .route("/users/:id", get(handler::get_user));
+    
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("Server running on http://localhost:3000");
+
+    axum::serve(listener, app).await.unwrap();
 }
 
-pub async fn get_users() -> Json<Vec<User>> {
-    Json(get_all_users())
-}
-
-pub async fn get_user(
-    Path(id): Path<u32>,
-) -> Result<Json<User>, (StatusCode, Json<ApiError>)> {
-    let users = get_all_users();
-
-    for user in users {
-        if user.id == id {
-            return Ok(Json(user));
-        }
-    }
-
-    let error = ApiError {
-        error: ErrorDetail {
-            r#type: "not_found".to_string(),
-            resource: "user".to_string(),
-            id,
-        },
-    };
-
-    Err((StatusCode::NOT_FOUND, Json(error)))
-}
-
-pub async fn create_user(Json(payload): Json<CreateUser>) -> Json<User> {
-    let new_user = User {
-        id: 3,
-        name: payload.name,
-    };
-
-    Json(new_user)
+async fn root() -> &'static str {
+    "Server is running"
 }
