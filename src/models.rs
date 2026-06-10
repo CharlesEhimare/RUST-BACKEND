@@ -1,13 +1,18 @@
-use serde::{Serialize, Deserialize};
+﻿use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, sqlx::FromRow)]
 pub struct User {
-    pub id: u32,
+    pub id: i32,
     pub name: String,
 }
 
 #[derive(Deserialize)]
 pub struct CreateUser {
+    pub name: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateUser {
     pub name: String,
 }
 
@@ -20,5 +25,5 @@ pub struct ApiError {
 pub struct ErrorDetail {
     pub r#type: String,
     pub resource: String,
-    pub id: u32,
+    pub id: i32,
 }
